@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Jaeger expõe métricas coletadas (traces e dados OTLP)
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # Backend ITSM exportando métricas Prometheus
+  - job_name: 'itsm-backend'
+    static_configs:
+      - targets: ['host.docker.internal:5000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+  
+  # Loki para monitoramento de logs
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
