@@ -7,6 +7,7 @@ const { logger } = require("../observability/logger");
 const { invalidateCache } = require("../observability/cache-helper");
 const cacheMiddleware = require("../middlewares/cache");
 const router = express.Router();
+const messageService = require("../services/messageService");
 
 // CREATE - Criar um novo serviço
 router.post("/", authMiddleware, async (req, res) => {
@@ -29,6 +30,20 @@ router.post("/", authMiddleware, async (req, res) => {
 
       // Invalidar cache de lista de serviços com registros automáticos de métrica
       await invalidateCache('GET:/services');
+
+      // Publicar evento de criação de serviço
+      await messageService.publishServiceCreated(service);
+
+      //Enviar notificação para o criador
+      await messageService.sendNotification({
+        userId: req.user.id,
+        service: 'service_created',
+        title: 'Serviço Criado',
+        message: `O serviço "${service.name}" foi criado com sucesso.`,
+        metadata: {
+          serviceId: service.id
+        }
+      });
 
       logger.info({
         event: 'service_created',

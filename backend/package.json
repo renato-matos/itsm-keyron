@@ -8,7 +8,9 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "workers": "node src/workers/index.js",
+    "dev:workers": "nodemon src/workers/index.js"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +29,8 @@
     "@opentelemetry/sdk-node": "^0.211.0",
     "@opentelemetry/sdk-trace-node": "^2.5.0",
     "@opentelemetry/semantic-conventions": "^1.39.0",
+    "@slack/web-api": "^7.13.0",
+    "amqplib": "^0.10.9",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",

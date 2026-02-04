@@ -6,6 +6,7 @@ const { logger } = require("../observability/logger");
 const { recordDatabaseOperation } = require("../observability/prometheus-metrics");
 const { invalidateCache } = require("../observability/cache-helper");
 const cacheMiddleware = require("../middlewares/cache");
+const messageService = require("../services/messageService");
 
 const router = express.Router();
 
@@ -25,6 +26,19 @@ router.post("/", authMiddleware, async (req, res) => {
       // Invalidar cache de lista de usuários com registros automáticos de métrica
       await invalidateCache('GET:/users');
 
+      // Publicar evento de criação de usuário
+      await messageService.publishUserRegistered(user);
+
+      // Enviar notificação de boas-vindas
+      await messageService.sendNotification({
+        userId: user.id,
+        email: user.email,
+        type: 'welcome',
+        title: 'Bem-vindo!',
+        message: `Olá ${user.name}, seja bem-vindo ao nosso sistema!`,
+        metadata: { isWelcome: true }
+      });
+    
       logger.info({
         event: 'user_created',
         user_id: user.id,
