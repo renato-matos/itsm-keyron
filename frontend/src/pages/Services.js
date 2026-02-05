@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import serviceService from '../services/serviceService';
 
 const Services = () => {
@@ -16,24 +16,30 @@ const Services = () => {
   const categories = ['Infraestrutura', 'Software', 'Hardware', 'Suporte', 'Geral'];
   const statuses = ['Ativo', 'Inativo', 'Em Manutenção'];
 
-  // Carregar serviços
-  const loadServices = async () => {
+  // Carregar serviços - usar useCallback para evitar recriação desnecessária
+  const loadServices = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('Carregando serviços com filtros:', filters);
       const data = await serviceService.getAll(filters);
-      setServices(data);
+      console.log('Serviços carregados:', data);
+      // Garantir que data é um array
+      const servicesArray = Array.isArray(data) ? data : [];
+      setServices(servicesArray);
       setError('');
     } catch (error) {
       setError('Erro ao carregar serviços');
       console.error('Erro:', error);
+      setServices([]); // Usar array vazio em caso de erro
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
+  // Disparar no mount e quando filters mudarem
   useEffect(() => {
     loadServices();
-  }, [filters]);
+  }, [loadServices]);
 
   // Excluir serviço
   const handleDelete = async (id) => {

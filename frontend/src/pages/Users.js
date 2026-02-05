@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import userService from '../services/userService';
 
 const Users = () => {
@@ -8,24 +8,27 @@ const Users = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  // Carregar usuários
-  const loadUsers = async () => {
+  // Carregar usuários - usar useCallback para evitar recriação desnecessária
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await userService.getAll();
-      setUsers(data);
+      // Garantir que data é um array
+      const usersArray = Array.isArray(data) ? data : [];
+      setUsers(usersArray);
       setError('');
     } catch (error) {
       setError('Erro ao carregar usuários');
       console.error('Erro:', error);
+      setUsers([]); // Usar array vazio em caso de erro
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [loadUsers]);
 
   // Excluir usuário
   const handleDelete = async (id) => {

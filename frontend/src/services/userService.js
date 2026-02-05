@@ -3,8 +3,23 @@ import api from './api';
 const userService = {
   // Listar todos os usuários
   getAll: async () => {
-    const response = await api.get('/users');
-    return response.data;
+    try {
+      const response = await api.get('/users');
+      const data = response.data;
+      
+      // Garantir que sempre retorna um array
+      if (Array.isArray(data)) {
+        return data;
+      } else if (data && typeof data === 'object' && Array.isArray(data.data)) {
+        return data.data;
+      } else {
+        console.warn('User API returned non-array data:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error.message);
+      return [];
+    }
   },
 
   // Buscar usuário por ID

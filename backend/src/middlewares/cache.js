@@ -27,6 +27,12 @@ const cacheMiddleware = (ttl = 3600) => {
         recordCacheOperation('lookup', cacheKey, Date.now() - startTime);
         span.end();
         
+        // Se os dados em cache são um array, retornar como array diretamente
+        // Caso contrário, adicionar metadados de cache
+        if (Array.isArray(cachedData)) {
+          return res.json(cachedData);
+        }
+        
         return res.json({
           ...cachedData,
           _cached: true,

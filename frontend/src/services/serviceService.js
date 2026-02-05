@@ -3,12 +3,27 @@ import api from './api';
 const serviceService = {
   // Listar todos os serviços
   getAll: async (filters = {}) => {
-    const params = new URLSearchParams();
-    if (filters.category) params.append('category', filters.category);
-    if (filters.status) params.append('status', filters.status);
-    
-    const response = await api.get(`/services?${params.toString()}`);
-    return response.data;
+    try {
+      const params = new URLSearchParams();
+      if (filters.category) params.append('category', filters.category);
+      if (filters.status) params.append('status', filters.status);
+      
+      const response = await api.get(`/services?${params.toString()}`);
+      const data = response.data;
+      
+      // Garantir que sempre retorna um array
+      if (Array.isArray(data)) {
+        return data;
+      } else if (data && typeof data === 'object' && Array.isArray(data.data)) {
+        return data.data;
+      } else {
+        console.warn('Service API returned non-array data:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error.message);
+      return [];
+    }
   },
 
   // Buscar serviço por ID
