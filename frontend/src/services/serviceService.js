@@ -16,6 +16,13 @@ const serviceService = {
         return data;
       } else if (data && typeof data === 'object' && Array.isArray(data.data)) {
         return data.data;
+      } else if (data && typeof data === 'object') {
+        // Extract array from cached object {0: {...}, 1: {...}, _cached: true}
+        const services = Object.keys(data)
+          .filter(key => !key.startsWith('_'))
+          .filter(key => !isNaN(key))
+          .map(key => data[key]);
+        return services.length > 0 ? services : [];
       } else {
         console.warn('Service API returned non-array data:', data);
         return [];
